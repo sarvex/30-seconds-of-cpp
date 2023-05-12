@@ -76,9 +76,14 @@ Please read the *updated* [CONTRIBUTING](CONTRIBUTING.md) for the process for su
 def get_list_of_categories():
     ''' Walk the current directory and get a list of all subdirectories at that
     level.  These are the "header directories" in which there are functions.'''
-    dirs = [x for x in os.listdir('.') if os.path.isdir(x) and
-            '.git' not in x and x != 'snippets' and x != 'logo' ]
-    return dirs
+    return [
+        x
+        for x in os.listdir('.')
+        if os.path.isdir(x)
+        and '.git' not in x
+        and x != 'snippets'
+        and x != 'logo'
+    ]
 
 
 def get_title(function_file):
@@ -94,11 +99,15 @@ def get_title(function_file):
 
 def get_functions(category):
     ''' For a given category, get the list of function() titles. '''
-    files = [x for x in os.listdir(category)]
+    files = list(os.listdir(category))
     titles = []
     for filename in files:
         fullname = os.path.join(category, filename)
-        if (os.path.isfile(fullname)) and fullname.endswith('.md') and fullname != category + '/README.md':
+        if (
+            (os.path.isfile(fullname))
+            and fullname.endswith('.md')
+            and fullname != f'{category}/README.md'
+        ):
             title = get_title(fullname)
             titles.append((title, fullname))
     return titles
@@ -150,17 +159,21 @@ def print_subfile(category):
     ''' Print out the correct information to the README inside of a category'''
     not_implemented_functions = []
     implemented_functions = map(lambda entry: entry[0], get_functions(category))
-    with open(category + '/todo.txt', 'r') as file_:
+    with open(f'{category}/todo.txt', 'r') as file_:
         lines = file_.readlines()
-    with open(category + '/todo.txt', 'w') as file_:
+    with open(f'{category}/todo.txt', 'w') as file_:
         for function in lines:
             if function.strip('\n') not in implemented_functions:
                 not_implemented_functions.append(function.strip('\n'))
                 file_.write(function)
-    with open(category + '/README.md', 'w') as file_:
+    with open(f'{category}/README.md', 'w') as file_:
         file_.write('# `<{0}>`\n'.format(category))
         for function in sorted(implemented_functions):
-            file_.write('{0} [{1}]({2})  \n'.format(EMOJIS["implemented"],function, function+'.md'))
+            file_.write(
+                '{0} [{1}]({2})  \n'.format(
+                    EMOJIS["implemented"], function, f'{function}.md'
+                )
+            )
         for function in sorted(not_implemented_functions):
             file_.write('{0} {1}  \n'.format(EMOJIS["not_implemented"],function))
 
